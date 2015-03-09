@@ -23,9 +23,9 @@ int main()
         LispTree lt;
         boost::trim(lines[i]);
         if(lines[i].compare("")==0) continue;
-        cout << lines[i] << endl;
+        // cout << lines[i] << endl;
         lt.read_from_string(lines[i]);
-        lt.print();
+        cout << lt.to_string() << endl;
     }
 }
 

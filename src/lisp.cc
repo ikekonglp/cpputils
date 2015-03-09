@@ -15,24 +15,56 @@
 #include <fstream>
 #include <sstream>
 #include "indent.hpp"
+#include <boost/algorithm/string/join.hpp>
 
 using namespace std;
 
 #define len(vec) (int)(vec).size()
-#define forvec(i, tx, x, vec)         for(int i = 0, _##i = 0; i < len(vec); i++) \
-                                          for(tx x = (vec)[i]; i == _##i; _##i++)
+// # means to string and ## means concat two stings
 
 void LispNode::destroy() {
-  forvec(_, LispNode *, node, children) {
+  for(int i = 0; i < children.size(); i++){
+    LispNode* node = children[i];
     node->destroy();
     delete node;
   }
 }
 
 void LispNode::print(int ind) const {
+  // (is_preterminal() ? "[PRE_TERMINAL] " : "") << (is_leaf() ? "[LEAF] " : "")
   cout << Indent(ind) << (value.empty() ? "(empty)" : value) << endl;
-  forvec(_, LispNode *, subnode, children)
+  for(int i = 0; i < children.size(); i++){
+    LispNode* subnode = children[i];
     subnode->print(ind+1);
+  }
+}
+
+string LispNode::to_string() const {
+  if(!is_leaf()){
+    vector<string> list;
+    // the current non-terminal
+    list.push_back((value.empty() ? "(empty)" : value));
+    // the children
+    for(int i = 0; i < children.size(); i++){
+      list.push_back(children[i]->to_string());
+    }
+    string joined = boost::algorithm::join(list, " ");
+    return "(" + joined + ")"; 
+  }else{
+      return (value.empty() ? "(empty)" : value);    
+  }
+}
+
+vector<LispNode*> LispNode::to_node_list() {
+  vector<LispNode*> list;
+  list.push_back(this);
+  for(int i = 0; i < children.size(); i++){
+      auto sub_list = children[i]->to_node_list();
+      for(int j = 0; j < sub_list.size(); j++){
+        list.push_back(sub_list[j]);
+      }
+  }
+  return list;
 }
 
 ////////////////////////////////////////////////////////////
@@ -43,20 +75,19 @@ LispTree::~LispTree() {
 }
 
 bool is_paren(char c) {
-  return c == '(' || c == ')' || c == '[' || c == ']';
+  return c == '(' || c == ')';
 }
 bool is_paren(string s) {
-  return s == "(" || s == ")" || s == "[" || s == "]";
+  return s == "(" || s == ")";
 }
 bool is_left_paren(string s) {
-  return s == "(" || s == "[";
+  return s == "(";
 }
 bool is_right_paren(string s) {
-  return s == ")" || s == "]";
+  return s == ")";
 }
 string matching_right_paren(char c) {
   if(c == '(') return ")";
-  if(c == '[') return "]";
   return "";
 }
 
@@ -162,4 +193,14 @@ void LispTree::read_from_string(string &s){
 void LispTree::print() const {
   assert(root);
   root->print(0);
+}
+
+string LispTree::to_string() const {
+  assert(root);
+  return root->to_string();
+}
+
+vector<LispNode*> LispTree::to_node_list(){
+  assert(root);
+  return root->to_node_list();
 }

@@ -19,7 +19,21 @@ using namespace std;
 struct LispNode {
   void destroy();
   void print(int ind) const;
-
+  bool is_leaf() const { return children.empty(); }
+  bool is_preterminal() const {
+    if(children.empty()){
+      return false;
+    }else{
+      if(children.size() == 1 && children[0]->children.empty()){
+        return true;
+      }
+      else{
+        return false;
+      }
+    }
+  }
+  vector<LispNode*> to_node_list();
+  string to_string() const;
   string value;
   vector<LispNode *> children;
 };
@@ -35,6 +49,8 @@ struct LispTree {
   void read_from_string(string &s);
   void read(const char *file);
   void print() const;
+  string to_string() const;
+  vector<LispNode*> to_node_list();
 
   LispNode *root;
 };
