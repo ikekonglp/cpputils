@@ -14,4 +14,4 @@ lisp.o:	lisp.cc
 	g++ $(CPPFLAGS) -c lisp.cc -o lisp.o
 	
 clean:
-	rm -r -f *
+	rm *.o main
