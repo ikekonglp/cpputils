@@ -9,8 +9,7 @@ CC = g++
 COMMANDLINE_OPTIONS = /dev/ttyS0
 
 # Compiler options during compilation
-COMPILE_OPTIONS = -ansi -pedantic -Wall -std=c++11 -g -I.
-
+COMPILE_OPTIONS = -fdiagnostics-color=auto -march=native -ansi -pedantic -Wall -std=c++11 -g -I.
 #Header include directories
 HEADERS =
 #Libraries for linking
