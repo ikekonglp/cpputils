@@ -8,6 +8,7 @@
 #include "dependencyutils/DependencyDictionary.h"
 #include "dependencyutils/DependencyReader.h"
 #include "dependencyutils/DependencyWriter.h"
+#include "dependencyutils/DependencyInstanceNumeric.h"
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
@@ -38,9 +39,18 @@ void dependency_prepare(){
 
     reader->Open(file_name);
     
-    DependencyInstance* instance = static_cast<DependencyInstance*> (reader->GetNext());
-    writer->Write(instance);
+    DependencyInstance* dependency_instance = static_cast<DependencyInstance*> (reader->GetNext());
+    writer->Write(dependency_instance);
 
+    DependencyInstanceNumeric *instance_numeric = new DependencyInstanceNumeric;
+    instance_numeric->Initialize(*dependency_dictionary, dependency_instance);
+
+    cout << instance_numeric->GetFormId(0) << endl;
+    cout << instance_numeric->GetFormId(1) << endl;
+    cout << instance_numeric->GetFormId(4) << endl;
+    cout << instance_numeric->GetFormId(16) << endl;
+
+    cout << token_dictionary->GetFormId("the") << endl;
 
     reader->Close();
     writer->Close();
@@ -52,7 +62,7 @@ int main(int argc, char** argv)
     // if google libs are installed in local lib path
     google::InitGoogleLogging(argv[0]);
     google::ParseCommandLineFlags(&argc, &argv, true);
-    google::LogToStderr();
+
     // LispTree lt;
     // string s = "(S (NP (NP (NNP Burmah)) (, ,) (SBAR (WHNP (WDT which)) (S (VP (VBZ owns) (NP (NP (DT the) (NNP Castrol) (NN brand)) (PP (IN of) (NP (JJ lubricant) (NNS oils))))))) (, ,)) (VP (VBD reported) (NP (NP (DT a) (ADJP (CD 17) (NN %)) (NN rise)) (PP (IN in) (NP (JJ net) (NN income))) (PP (TO to) (NP (NP (QP (# #) (CD 43.5) (CD million))) (PRN (-LRB- -LRB-) (NP (QP ($ $) (CD 68.3) (CD million))) (-RRB- -RRB-)))) (PP (IN in) (NP (DT the) (JJ first) (NN half))))) (. .))";
     // lt.read_from_string(s);
@@ -95,7 +105,7 @@ void read_by_line(){
 
     read_lines_into_vector(file_name, back_inserter(lines));
 
-    for (unsigned int i = 0; i < lines.size(); i++){
+    for (int i = 0; i < lines.size(); i++){
         // cout << lines[i] << endl;
         boost::trim(lines[i]);
         if(lines[i].compare("") == 0){
@@ -104,7 +114,7 @@ void read_by_line(){
         }
         vector<string> strs;
         boost::split(strs, lines[i], boost::is_any_of("\t"));
-        for (unsigned int j = 0; j < strs.size(); j++){
+        for (int j = 0; j < strs.size(); j++){
             cout << strs[j] << " ";
         }
         cout << endl;
