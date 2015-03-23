@@ -62,7 +62,8 @@ int main(int argc, char** argv)
     // if google libs are installed in local lib path
     google::InitGoogleLogging(argv[0]);
     google::ParseCommandLineFlags(&argc, &argv, true);
-
+    google::LogToStderr();
+    
     // LispTree lt;
     // string s = "(S (NP (NP (NNP Burmah)) (, ,) (SBAR (WHNP (WDT which)) (S (VP (VBZ owns) (NP (NP (DT the) (NNP Castrol) (NN brand)) (PP (IN of) (NP (JJ lubricant) (NNS oils))))))) (, ,)) (VP (VBD reported) (NP (NP (DT a) (ADJP (CD 17) (NN %)) (NN rise)) (PP (IN in) (NP (JJ net) (NN income))) (PP (TO to) (NP (NP (QP (# #) (CD 43.5) (CD million))) (PRN (-LRB- -LRB-) (NP (QP ($ $) (CD 68.3) (CD million))) (-RRB- -RRB-)))) (PP (IN in) (NP (DT the) (JJ first) (NN half))))) (. .))";
     // lt.read_from_string(s);
