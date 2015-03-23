@@ -1,17 +1,70 @@
-CPPFLAGS=-g -O2   -DNDEBUG  -std=c++11
-LDFLAGS=-g -O2  -DNDEBUG
-LDLIBS=-Wall
+# From http://stackoverflow.com/questions/14844268/makefile-template-for-large-c-project
 
-main: main.o lisp.o
-	g++ $(LDFLAGS) -o main main.o lisp.o $(LDLIBS)
+# Project Name (executable)
+PROJECT = main
+# Compiler
+CC = g++
 
-# io_utils.o: io_utils.hpp
-# 	g++ $(CPPFLAGS) -c io_utils.hpp -o io_utils.o
+# Run Options
+COMMANDLINE_OPTIONS = /dev/ttyS0
 
-main.o: main.cpp
-	g++ $(CPPFLAGS) -c main.cpp -o main.o
-lisp.o:	lisp.cc
-	g++ $(CPPFLAGS) -c lisp.cc -o lisp.o
-	
+# Compiler options during compilation
+COMPILE_OPTIONS = -ansi -pedantic -Wall -std=c++11 -g -I.
+
+#Header include directories
+HEADERS =
+#Libraries for linking
+LIBS = -lgflags -lglog
+
+# Dependency options
+DEPENDENCY_OPTIONS = -MM
+
+#-- Do not edit below this line --
+
+# Subdirs to search for additional source files
+SUBDIRS := $(shell ls -F | grep "\/" )
+DIRS := ./ $(SUBDIRS)
+SOURCE_FILES := $(foreach d, $(DIRS), $(wildcard $(d)*.cpp) )
+
+# Create an object file of every cpp file
+OBJECTS = $(patsubst %.cpp, %.o, $(SOURCE_FILES))
+
+# Dependencies
+DEPENDENCIES = $(patsubst %.cpp, %.d, $(SOURCE_FILES))
+
+# Create .d files
+%.d: %.cpp
+	$(CC) $(DEPENDENCY_OPTIONS) $< -MT "$*.o $*.d" -MF $*.d
+
+# Make $(PROJECT) the default target
+all: $(DEPENDENCIES) $(PROJECT)
+
+$(PROJECT): $(OBJECTS)
+	$(CC) -o $(PROJECT) $(OBJECTS) $(LIBS)
+
+# Include dependencies (if there are any)
+ifneq "$(strip $(DEPENDENCIES))" ""
+   include $(DEPENDENCIES)
+endif
+
+# Compile every cpp file to an object
+%.o: %.cpp
+	$(CC) -c $(COMPILE_OPTIONS) -o $@ $< $(HEADERS)
+
+# Build & Run Project
+run: $(PROJECT)
+	./$(PROJECT) $(COMMANDLINE_OPTIONS)
+
+# Clean & Debug
+.PHONY: makefile-debug
+makefile-debug:
+
+.PHONY: clean
 clean:
-	rm *.o main
+	rm -f $(PROJECT) $(OBJECTS)
+
+.PHONY: depclean
+depclean:
+	rm -f $(DEPENDENCIES)
+
+clean-all: clean depclean
